@@ -13,7 +13,7 @@ with (socket.create_connection((HOST, PORT)) as s):
             data = s.recv(4096).decode(errors='ignore')
             if not data:
                 continue
-            if "[Challenge" in data:  # Challenge nou - resetează buffer
+            if "[Challenge" in data:  # new challenge - resets buffer
                 buf = data
             else:
                 buf += data
@@ -23,7 +23,7 @@ with (socket.create_connection((HOST, PORT)) as s):
             if "flag" in data.lower() or "CTF{" in data:
                 continue
 
-            # Soluționare challenge
+            # challenge solving
             ans = solve_challenge(buf)
             if ans != "UNKNOWN":
                 print("[SENT]", ans)
@@ -31,3 +31,4 @@ with (socket.create_connection((HOST, PORT)) as s):
                 buf = ""
     except KeyboardInterrupt:
         print("\n[Stop]")
+
