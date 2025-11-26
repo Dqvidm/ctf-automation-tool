@@ -2,39 +2,38 @@
 import re
 
 def extract_hex(text):
-    """Extrage valoare hex din text"""
+    """Extracts hex value"""
     match = re.search(r'(0x)?([0-9a-fA-F]+)', text)
     return match.group(2) if match else None
 
 def extract_numbers(text):
-    """Extrage toate numerele din text"""
+    """Extracts all numbers"""
     return [int(n) for n in re.findall(r'\d+', text)]
 
 def extract_word_after_keyword(text, keyword):
-    """Extrage cuvântul după un keyword (ex: 'Reverse: hello')"""
+    """Extracts word after a keyword (ex: 'Reverse: hello')"""
     match = re.search(rf'{keyword}[:\s]+(\w+)', text, re.I)
     return match.group(1) if match else None
 
 def extract_base64(text):
-    """Extrage string base64 din text"""
+    """Extracts string base64"""
     match = re.search(r'([A-Za-z0-9+/=]{4,})', text)
     return match.group(1) if match else None
 
 def extract_math_expression(text):
-    """Extrage expresie matematică"""
+    """Extracts math expressions"""
     match = re.search(r'What is (.+)\?', text)
     return match.group(1) if match else None
 
-# === EXTRACTORI PENTRU OPERAȚII LOGICE BINARE ===
 
 def extract_binary_operation(text, operation):
     """
-    Extrage operanzi binari pentru operații logice
+    Extract binary operands for logical operations
     Args:
-        text: textul challenge-ului
+        text: challenge text
         operation: 'AND', 'OR', 'XOR', 'NOR', 'NAND'
     Returns:
-        tuple (a, b) cu numerele în binar sau None
+        tuple (a, b) binary nr or None
     """
     pattern = rf'Binary {operation}.*?:\s*(\d+)\s+{operation}\s+(\d+)'
     match = re.search(pattern, text, re.I)
@@ -43,36 +42,36 @@ def extract_binary_operation(text, operation):
     return None
 
 def extract_binary_and(text):
-    """Extrage operanzi pentru Binary AND"""
+    """Extract operands for Binary AND"""
     return extract_binary_operation(text, 'AND')
 
 def extract_binary_or(text):
-    """Extrage operanzi pentru Binary OR"""
+    """Extract operands for Binary OR"""
     return extract_binary_operation(text, 'OR')
 
 def extract_binary_xor(text):
-    """Extrage operanzi pentru Binary XOR"""
+    """Extract operands for Binary XOR"""
     return extract_binary_operation(text, 'XOR')
 
 def extract_binary_nor(text):
-    """Extrage operanzi pentru Binary NOR"""
+    """Extract operands for Binary NOR"""
     return extract_binary_operation(text, 'NOR')
 
 def extract_binary_nand(text):
-    """Extrage operanzi pentru Binary NAND"""
+    """Extract operands for Binary NAND"""
     return extract_binary_operation(text, 'NAND')
 
 def extract_binary_not(text):
-    """Extrage operand pentru Binary NOT"""
+    """Extract operands for Binary NOT"""
     match = re.search(r'NOT\s+(\d+)', text)
     return match.group(1) if match else None
 
 def extract_complex_logic(text):
     """
-    Extrage operanzi din expresii complexe
+    Extract operands from complex expressions
     Ex: "(1010 AND 1100) XOR 1111"
     Returns:
-        tuple (a, b, c) sau None
+        tuple (a, b, c) or None
     """
     match = re.search(r'\((\d+)\s+AND\s+(\d+)\)\s+XOR\s+(\d+)', text)
     if match:
@@ -81,11 +80,11 @@ def extract_complex_logic(text):
 
 def binary_to_int(binary_str):
     """
-    Convertește string binar în int
+    Converts binary string or int
     Args:
-        binary_str: string cu număr binar (fără 0b)
+        binary_str: string with binary nr (without 0b)
     Returns:
-        int sau None
+        int or None
     """
     try:
         return int(binary_str, 2)
@@ -94,16 +93,16 @@ def binary_to_int(binary_str):
 
 def int_to_binary(num):
     """
-    Convertește int în string binar (fără 0b)
+    Convert int to binary string (without 0b)
     Args:
-        num: număr întreg
+        num: whole number
     Returns:
-        string binar fără prefix 0b
+        binary string without prefix (0b)
     """
     return bin(num)[2:]
 
 def is_binary_challenge(text):
-    """Verifică dacă challenge-ul este o operație binară"""
+    """Check if the challenge is a binary operation"""
     binary_keywords = ['Binary AND', 'Binary OR', 'Binary XOR',
                        'Binary NOR', 'Binary NAND', 'Binary NOT',
                        'Calculate:']
@@ -111,9 +110,9 @@ def is_binary_challenge(text):
 
 def get_challenge_type(text):
     """
-    Detectează tipul de challenge din text
+    Detects the type of challenge in the text
     Returns:
-        string cu tipul challenge-ului
+        string with the type of challenge
     """
     if "Binary AND" in text:
         return "binary_and"
@@ -140,4 +139,5 @@ def get_challenge_type(text):
     elif "sequence" in text:
         return "sequence"
     else:
+
         return "unknown"
