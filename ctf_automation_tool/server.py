@@ -6,7 +6,7 @@ import random
 HOST = "0.0.0.0"
 PORT = 5000
 
-# Challenge-uri simple
+# simple challenges
 SIMPLE_CHALLENGES = [
     {
         "type": "math",
@@ -35,14 +35,13 @@ SIMPLE_CHALLENGES = [
     },
 ]
 
-# Challenge-uri cu operații logice
+# logic operations challenges
 LOGICAL_CHALLENGES = [
     {
         "type": "and",
         "question": lambda: (
             lambda a, b: (f"Binary AND: {bin(a)[2:]} AND {bin(b)[2:]} = ? (answer in binary, e.g., 1010)",
                           bin(a & b)[2:]))(random.randint(8, 255), random.randint(8, 255)),
-        # solver not needed for tuple-style questions
         "solver": lambda q: q[1] if isinstance(q, tuple) else None
     },
     {
@@ -89,7 +88,7 @@ LOGICAL_CHALLENGES = [
     },
 ]
 
-# Combină toate challenge-urile
+# combine all challenges
 CHALLENGES = SIMPLE_CHALLENGES + LOGICAL_CHALLENGES
 
 
@@ -106,7 +105,7 @@ def handle_client(conn, addr):
         total_challenges = 12
 
         for i in range(total_challenges):
-            # 65% șanse pentru operații logice, 35% pentru altele
+            # 65% logical operations, 35% simple challenges
             if random.random() < 0.65:
                 challenge = random.choice(LOGICAL_CHALLENGES)
             else:
@@ -114,7 +113,7 @@ def handle_client(conn, addr):
 
             question_result = challenge["question"]()
 
-            # Gestionează tuple (question, answer) pentru operații logice
+            # Manages tuples (question, answer) for logical operations
             if isinstance(question_result, tuple):
                 question, correct_answer = question_result[0], question_result[1]
             else:
@@ -122,12 +121,12 @@ def handle_client(conn, addr):
                 # Ensure solver returns a string
                 correct_answer = str(challenge["solver"](question))
 
-            # Trimite challenge-ul
+            # sends challenge
             msg = f"[Challenge {i + 1}/{total_challenges}] {question}\n"
             conn.sendall(msg.encode())
             print(f"[{addr}] Sent: {msg.strip()}")
 
-            # Așteaptă răspuns
+            # waits for response
             try:
                 data = conn.recv(4096)
                 if not data:
@@ -149,7 +148,7 @@ def handle_client(conn, addr):
 
             time.sleep(0.5)
 
-        # Rezultat final
+        # final result
         conn.sendall(b"\n=== Results ===\n")
         result_msg = f"You solved {correct_answers}/{total_challenges} challenges!\n"
         conn.sendall(result_msg.encode())
@@ -180,9 +179,9 @@ def start_server():
     server.listen(5)
 
     print(f"🚀 CTF Challenge Server started")
-    print(f"📡 Listening on {HOST}:{PORT}")
-    print(f"🎯 Waiting for connections...\n")
-    print(f"📋 Available challenge types:")
+    print(f" Listening on {HOST}:{PORT}")
+    print(f" Waiting for connections...\n")
+    print(f" Available challenge types:")
     print(f"   - Math operations")
     print(f"   - String reversal")
     print(f"   - Base64 decode")
@@ -208,3 +207,4 @@ def start_server():
 
 if __name__ == "__main__":
     start_server()
+
