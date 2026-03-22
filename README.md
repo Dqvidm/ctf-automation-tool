@@ -15,15 +15,8 @@ Libraries: socket, threading, re (Regular Expressions), base64.
 Concepts: Network Programming, Bitwise Logic, Multithreading, Regex Pattern Matching.
 
 Project Structure:
-ctf_automation_tool/
-├── main.py              # Client entry point and socket coordinator
-├── server.py            # Multi-threaded challenge generator
-├── utils/
-│   ├── parsers.py       # Data extraction using Regular Expressions
-│   ├── solver.py        # Logic for resolving challenges
-│   └── encoders.py      # Helper for data formatting
-├── README.md            # Technical documentation
-└── .gitignore           # Excludes __pycache__ and local environment files
+<img width="719" height="228" alt="image" src="https://github.com/user-attachments/assets/1547073b-1582-49fa-996c-276f31462f91" />
+
 
 Installation and Setup:
 Clone the Repository:
