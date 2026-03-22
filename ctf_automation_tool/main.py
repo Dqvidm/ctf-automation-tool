@@ -13,22 +13,25 @@ with (socket.create_connection((HOST, PORT)) as s):
             data = s.recv(4096).decode(errors='ignore')
             if not data:
                 continue
-            if "[Challenge" in data:  # new challenge - resets buffer
+
+            # New challenge detected - reset the buffer
+            if "[Challenge" in data:
                 buf = data
             else:
                 buf += data
+
             print("[SERVER]", data, end='', flush=True)
 
             # Ignore flag messages
             if "flag" in data.lower() or "CTF{" in data:
                 continue
 
-            # challenge solving
+            # Challenge resolution
             ans = solve_challenge(buf)
             if ans != "UNKNOWN":
                 print("[SENT]", ans)
                 s.sendall((ans + "\n").encode())
                 buf = ""
-    except KeyboardInterrupt:
-        print("\n[Stop]")
 
+    except KeyboardInterrupt:
+        print("\n[Stopped by user]")

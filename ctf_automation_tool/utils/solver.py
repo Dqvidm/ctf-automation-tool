@@ -2,15 +2,15 @@
 import re
 import base64
 
-
 def solve_challenge(text):
     """
-    Rezolvă challenge-uri pe baza textului primit
+    Solves challenges based on the received text.
     """
-    # Take only the last line with challenge (avoid accumulation)
+    # Extract only the last line containing the challenge to avoid accumulation.
     lines = text.strip().split('\n')
     current_challenge = lines[-1] if lines else text
 
+    # BINARY LOGIC OPERATIONS (8-bit)
 
     # Binary AND: "Binary AND: 10110101 AND 11001100 = ?"
     if "Binary AND:" in current_challenge:
@@ -19,7 +19,7 @@ def solve_challenge(text):
             a = int(match.group(1), 2)  # Convert from binary to decimal
             b = int(match.group(2), 2)
             result = a & b
-            return bin(result)[2:]  # return without 0b
+            return bin(result)[2:]  # Return without the 0b prefix
 
     # Binary OR: "Binary OR: 10110101 OR 11001100 = ?"
     if "Binary OR:" in current_challenge:
@@ -45,7 +45,7 @@ def solve_challenge(text):
         if match:
             a = int(match.group(1), 2)
             b = int(match.group(2), 2)
-            result = ~(a | b) & 0xFF  # 8-bit mask
+            result = ~(a | b) & 0xFF  # Apply 8-bit mask
             return bin(result)[2:]
 
     # Binary NAND: "Binary NAND (8-bit): 10110101 NAND 11001100 = ?"
@@ -54,7 +54,7 @@ def solve_challenge(text):
         if match:
             a = int(match.group(1), 2)
             b = int(match.group(2), 2)
-            result = ~(a & b) & 0xFF  # 8-bit mask
+            result = ~(a & b) & 0xFF  # Apply 8-bit mask
             return bin(result)[2:]
 
     # Binary NOT: "Binary NOT (8-bit): NOT 10110101 = ?"
@@ -62,12 +62,12 @@ def solve_challenge(text):
         match = re.search(r'NOT\s+(\d+)', current_challenge)
         if match:
             a = int(match.group(1), 2)
-            result = ~a & 0xFF  # 8-bit mask
+            result = ~a & 0xFF  # Apply 8-bit mask
             return bin(result)[2:]
 
     # Complex Logic: "Calculate: (1010 AND 1100) XOR 1111 = ?"
     if "Calculate:" in current_challenge and "AND" in current_challenge and "XOR" in current_challenge:
-        # Extract binary numbers from expression
+        # Extract binary numbers from the expression
         match = re.search(r'\((\d+)\s+AND\s+(\d+)\)\s+XOR\s+(\d+)', current_challenge)
         if match:
             a = int(match.group(1), 2)
@@ -76,6 +76,7 @@ def solve_challenge(text):
             result = (a & b) ^ c
             return bin(result)[2:]
 
+    # EXISTING CHALLENGES
 
     # Reverse string: "Reverse this string: hello"
     if "Reverse" in current_challenge:
@@ -98,7 +99,7 @@ def solve_challenge(text):
             except:
                 pass
 
-    # Math expression: "What is X + Y?" - Check the complete expression FIRST
+    # Math expression: "What is X + Y?" - Check complete expression FIRST
     if "What is" in current_challenge:
         match = re.search(r'What is (.+)\?', current_challenge)
         if match:
@@ -108,7 +109,7 @@ def solve_challenge(text):
             except:
                 pass
 
-    # Addition : "45 + 32"
+    # Simple addition: "45 + 32" (if not already solved by the 'What is' check)
     if "+" in current_challenge and "What is" not in current_challenge:
         match = re.search(r'(\d+)\s*\+\s*(\d+)', current_challenge)
         if match:
@@ -121,6 +122,5 @@ def solve_challenge(text):
             nums = [int(n) for n in numbers]
             diff = nums[-1] - nums[-2]
             return str(nums[-1] + diff)
-
 
     return "UNKNOWN"
