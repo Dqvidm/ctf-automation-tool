@@ -1,1 +1,4 @@
-pip install unicorn-engine
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+websockets>=11.0.0
+pytest>=7.0.0

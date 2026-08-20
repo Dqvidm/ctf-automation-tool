@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTF Automation Control Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        dcDark: '#080d14',
+                        dcNavy: '#0c1524',
+                        dcCyan: '#38bdf8',
+                        dcBlue: '#2563eb'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at 80% 20%, #152238 0%, #0a111c 50%, #05080e 100%);
+            color: #f1f5f9;
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .glass-inner {
+            background: rgba(8, 13, 20, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .server-unit {
+            background: linear-gradient(180deg, #16202f 0%, #0d1522 100%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .led-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .led-active {
+            background-color: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8;
+        }
+
+        .led-idle {
+            background-color: #1e293b;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-6 md:p-10 flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+
+    <div class="max-w-7xl mx-auto w-full space-y-8">
+
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-950/50 border border-sky-500/30 text-sky-300 text-xs font-medium tracking-wide mb-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+                    Infrastructure Telemetry
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-white">Data Center <span class="text-sky-400 font-light">Engine</span></h1>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="clearAllData()" class="px-4 py-2 text-xs font-medium rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition backdrop-blur-md">
+                    Clear Data
+                </button>
+                <div id="statusBadge" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium tracking-wider bg-slate-900/80 border border-slate-700 text-slate-400 shadow-inner">
+                    <span id="statusLed" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                    <span id="statusText">DISCONNECTED</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <div class="lg:col-span-4 flex flex-col gap-6">
+
+                <div class="glass-card rounded-2xl p-7 relative overflow-hidden flex flex-col justify-between">
+                    <div class="space-y-6">
+                        <div class="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 uppercase tracking-widest">
+                            Infrastructure
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-white leading-tight">Data<br>Center</h2>
+                            <p class="text-sm font-medium text-slate-400 mt-2">Automated Processing Node</p>
+                        </div>
+
+                        <div class="space-y-3 pt-2 text-xs text-slate-300">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sky-400 text-base leading-none">•</span>
+                                <span>High-performance socket orchestration</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sky-400 text-base leading-none">•</span>
+                                <span>8-bit hardware logic simulation</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-sky-400 text-base leading-none">•</span>
+                                <span>RCE-safe AST parsing architecture</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-end">
+                        <div>
+                            <p class="text-[10px] uppercase tracking-wider text-slate-400">Solved Tasks</p>
+                            <span id="solvedMetric" class="text-4xl font-bold text-sky-400 font-mono">0</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] uppercase tracking-wider text-slate-400">Environment</p>
+                            <span class="text-xs font-mono text-slate-300">TCP / Raw Sockets</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Connection Gateway</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="col-span-2">
+                            <label class="text-[10px] text-slate-400 uppercase font-mono">Host Address</label>
+                            <input id="targetHost" type="text" value="127.0.0.1" class="w-full mt-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-sky-400 transition">
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 uppercase font-mono">Port</label>
+                            <input id="targetPort" type="number" value="5000" class="w-full mt-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-sky-400 transition">
+                        </div>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button id="btnStart" onclick="startAutomation()" class="w-1/2 py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-semibold tracking-wider transition shadow-lg shadow-sky-500/20">
+                            START ENGINE
+                        </button>
+                        <button id="btnStop" onclick="stopAutomation()" class="w-1/2 py-2.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 text-xs font-semibold tracking-wider transition">
+                            HALT
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="lg:col-span-8 flex flex-col gap-6">
+
+                <div class="glass-card rounded-2xl p-6 relative">
+                    <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Server Rack Units</span>
+                            <span class="text-[10px] font-mono text-slate-500">BLADE CHASSIS 01-04</span>
+                        </div>
+                        <span id="flagAlert" class="hidden px-3 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 border border-amber-500 text-amber-300 animate-pulse">
+                            FLAG SECURED
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-3 mt-4">
+                        <div class="server-unit rounded-lg p-2.5 flex flex-col justify-between h-14">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-mono text-slate-500">U-01</span>
+                                <div class="led-dot led-idle" id="led-1"></div>
+                            </div>
+                            <div class="w-full bg-slate-900/60 h-1 rounded-full overflow-hidden">
+                                <div class="bg-sky-400 h-full w-2/3"></div>
+                            </div>
+                        </div>
+                        <div class="server-unit rounded-lg p-2.5 flex flex-col justify-between h-14">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-mono text-slate-500">U-02</span>
+                                <div class="led-dot led-idle" id="led-2"></div>
+                            </div>
+                            <div class="w-full bg-slate-900/60 h-1 rounded-full overflow-hidden">
+                                <div class="bg-sky-400 h-full w-1/2"></div>
+                            </div>
+                        </div>
+                        <div class="server-unit rounded-lg p-2.5 flex flex-col justify-between h-14">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-mono text-slate-500">U-03</span>
+                                <div class="led-dot led-idle" id="led-3"></div>
+                            </div>
+                            <div class="w-full bg-slate-900/60 h-1 rounded-full overflow-hidden">
+                                <div class="bg-sky-400 h-full w-4/5"></div>
+                            </div>
+                        </div>
+                        <div class="server-unit rounded-lg p-2.5 flex flex-col justify-between h-14">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-mono text-slate-500">U-04</span>
+                                <div class="led-dot led-idle" id="led-4"></div>
+                            </div>
+                            <div class="w-full bg-slate-900/60 h-1 rounded-full overflow-hidden">
+                                <div class="bg-sky-400 h-full w-1/4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+
+                    <div class="glass-card rounded-2xl p-5 flex flex-col h-96">
+                        <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                            <span class="text-xs font-semibold text-slate-300">RAW STREAM BUFFER</span>
+                            <button onclick="clearServerStream()" class="text-[10px] text-slate-500 hover:text-slate-300">Clear</button>
+                        </div>
+                        <pre id="serverStream" class="custom-scroll flex-1 overflow-y-auto mt-3 font-mono text-[11px] text-slate-400 leading-relaxed bg-black/40 p-3.5 rounded-xl border border-white/5 select-text"></pre>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-5 flex flex-col h-96">
+                        <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                            <span class="text-xs font-semibold text-slate-300">EXECUTION TELEMETRY</span>
+                            <button onclick="clearSolverLogs()" class="text-[10px] text-slate-500 hover:text-slate-300">Clear</button>
+                        </div>
+                        <div id="solverLogs" class="custom-scroll flex-1 overflow-y-auto mt-3 space-y-2.5 bg-black/40 p-3.5 rounded-xl border border-white/5"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws`);
+
+        const statusLed = document.getElementById("statusLed");
+        const statusText = document.getElementById("statusText");
+        const serverStream = document.getElementById("serverStream");
+        const solverLogs = document.getElementById("solverLogs");
+        const solvedMetric = document.getElementById("solvedMetric");
+        const flagAlert = document.getElementById("flagAlert");
+        const leds = [document.getElementById("led-1"), document.getElementById("led-2"), document.getElementById("led-3"), document.getElementById("led-4")];
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.type === "status") {
+                updateStatus(data.status);
+            } else if (data.type === "server_payload") {
+                appendServerStream(data.raw);
+                flickerLeds();
+            } else if (data.type === "solution_sent") {
+                solvedMetric.innerText = data.solved_count;
+                appendSolverLog(data.challenge_chunk, data.answer);
+            } else if (data.type === "flag_captured") {
+                flagAlert.classList.remove("hidden");
+                appendServerStream("\n>>> " + data.payload);
+            }
+        };
+
+        function updateStatus(status) {
+            statusText.innerText = status;
+            if (status === "CONNECTED") {
+                statusLed.className = "w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]";
+                statusText.className = "text-emerald-400 font-semibold";
+                leds.forEach(led => led.className = "led-dot led-active");
+            } else if (status === "CONNECTING") {
+                statusLed.className = "w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]";
+                statusText.className = "text-amber-400 font-semibold";
+            } else {
+                statusLed.className = "w-2 h-2 rounded-full bg-slate-500";
+                statusText.className = "text-slate-400";
+                leds.forEach(led => led.className = "led-dot led-idle");
+            }
+        }
+
+        function flickerLeds() {
+            const randLed = leds[Math.floor(Math.random() * leds.length)];
+            randLed.style.opacity = "0.3";
+            setTimeout(() => { randLed.style.opacity = "1"; }, 80);
+        }
+
+        function appendServerStream(text) {
+            serverStream.textContent += text;
+            serverStream.scrollTop = serverStream.scrollHeight;
+        }
+
+        function appendSolverLog(challenge, answer) {
+            const div = document.createElement("div");
+            div.className = "p-2.5 rounded-lg bg-white/[0.03] border border-white/10 text-[11px] font-mono";
+            div.innerHTML = `
+                <div class="text-slate-400 truncate opacity-80">${challenge}</div>
+                <div class="text-sky-400 font-semibold mt-1 flex items-center justify-between">
+                    <span>DISPATCHED</span>
+                    <span class="text-emerald-400 font-bold bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">${answer}</span>
+                </div>
+            `;
+            solverLogs.appendChild(div);
+            solverLogs.scrollTop = solverLogs.scrollHeight;
+        }
+
+        function startAutomation() {
+            const host = document.getElementById("targetHost").value;
+            const port = document.getElementById("targetPort").value;
+            ws.send(JSON.stringify({ action: "START", host: host, port: port }));
+        }
+
+        function stopAutomation() {
+            ws.send(JSON.stringify({ action: "STOP" }));
+        }
+
+        function clearServerStream() {
+            serverStream.textContent = "";
+        }
+
+        function clearSolverLogs() {
+            solverLogs.innerHTML = "";
+        }
+
+        function clearAllData() {
+            serverStream.textContent = "";
+            solverLogs.innerHTML = "";
+            solvedMetric.innerText = "0";
+            flagAlert.classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
